@@ -1,9 +1,9 @@
 from fastapi import FastAPI # type: ignore
+from fastapi.middleware.cors import CORSMiddleware # type: ignore
 from models.bsm import BSM
 from models.iv_solver import solve_iv
 from models.market_data import market_iv
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from models.iv_analysis import historical_iv
 
 app = FastAPI()
 
@@ -13,19 +13,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-'''
 
-Add that to `main.py` right after you create the app, before your endpoints. Install it if needed: `pip install fastapi[all]`.
-
-Once that's in place, you're ready for React. Here's the plan:
-
-**Step 1:** From your project root, create the frontend:
-```
-cd /Users/amardani/OptionsCalculator
-npx create-react-app frontend
-cd frontend
-npm start
-'''
 @app.get("/price")
 def get_price(S: float, K: float, T: float, r: float, sigma: float, option_type: str, div: float = 0):
     model = BSM(S, K, T, r, sigma, option_type, div)
@@ -45,19 +33,22 @@ def get_iv(S: float, K: float, T: float, r: float, div: float, market_price: flo
         return {"error": "Could not converge"}
     return {"iv": iv}
 
+@app.get("/iv_analysis")
+def get_iv_analysis(ticker: str):
+    result = historical_iv(ticker)
+    if result is None:
+        return {"error": "Could not compute IV analysis"}
+    return {
+        "hv_20": float(result["hv_20"].iloc[-1]),
+        "hv_60": float(result["hv_60"].iloc[-1]),
+        "atm_iv_call": float(result["atm_iv_call"]),
+        "atm_iv_put": float(result["atm_iv_put"]),
+        "call_iv_rank": float(result["call_iv_rank"]),
+        "put_iv_rank": float(result["put_iv_rank"]),
+        "iv_hv_spread": float(result["iv_hv_spread"]),
+    }
+
 @app.get("/chain")
-def get_chain(ticker):
+def get_chain(ticker: str):
     df = market_iv(ticker)
-    return df.to_dict(orient='records')
-
-
-'''
-**Step 2:** From your `backend/` folder, run:
-
-uvicorn main:app --reload
-
-
-**Step 3:** Open your browser and go to:
-
-http://localhost:8000/docs
-'''
+    return df.to_dict(orient="records")
