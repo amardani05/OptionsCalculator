@@ -2,31 +2,54 @@ import { useState } from 'react';
 
 const BASE_URL = 'http://localhost:8000';
 
+const C = {
+  bg:       '#2D0A0B',
+  bgAlt:    '#3D1518',
+  surface:  '#4D1F22',
+  crimson:  '#B22234',
+  ivory:    '#F0E6C8',
+  gold:     '#C9AD6E',
+  taupe:    '#9A8564',
+  text:     '#F0E6C8',
+  muted:    '#7A6A50',
+  border:   '#4D1F22',
+  inputBg:  '#1E0607',
+  error:    '#B22234',
+};
+
+const font = {
+  display: "'EB Garamond', Garamond, serif",
+  mono: "'IBM Plex Mono', monospace",
+};
+
 const styles = {
   page: {
     minHeight: '100vh',
-    backgroundColor: '#0a0a0a',
-    color: '#e0e0e0',
-    fontFamily: "'IBM Plex Mono', monospace",
+    backgroundColor: C.bg,
+    color: C.text,
+    fontFamily: font.display,
     padding: '40px',
   },
   title: {
-    fontSize: '28px',
-    fontWeight: 700,
-    color: '#ffffff',
+    fontSize: '32px',
+    fontWeight: 600,
+    color: C.ivory,
     marginBottom: '32px',
-    borderBottom: '1px solid #333',
+    borderBottom: `1px solid ${C.border}`,
     paddingBottom: '16px',
+    fontFamily: font.display,
   },
   section: {
     marginBottom: '48px',
   },
   sectionTitle: {
-    fontSize: '13px',
+    fontSize: '14px',
     textTransform: 'uppercase',
-    color: '#555',
+    color: C.gold,
     letterSpacing: '2px',
     marginBottom: '16px',
+    fontFamily: font.display,
+    fontWeight: 600,
   },
   grid: {
     display: 'grid',
@@ -40,30 +63,33 @@ const styles = {
     gap: '4px',
   },
   label: {
-    fontSize: '11px',
+    fontSize: '12px',
     textTransform: 'uppercase',
-    color: '#888',
+    color: C.taupe,
     letterSpacing: '1px',
+    fontFamily: font.display,
   },
   input: {
-    backgroundColor: '#1a1a1a',
-    border: '1px solid #333',
+    backgroundColor: C.inputBg,
+    border: `1px solid ${C.border}`,
     borderRadius: '4px',
-    color: '#fff',
+    color: C.ivory,
     padding: '10px 12px',
     fontSize: '15px',
+    fontFamily: font.mono,
     outline: 'none',
   },
   button: {
-    backgroundColor: '#2563eb',
-    color: '#fff',
+    backgroundColor: C.crimson,
+    color: C.ivory,
     border: 'none',
     borderRadius: '4px',
     padding: '12px 32px',
-    fontSize: '14px',
+    fontSize: '15px',
     fontWeight: 600,
     cursor: 'pointer',
     letterSpacing: '0.5px',
+    fontFamily: font.display,
   },
   resultsGrid: {
     display: 'grid',
@@ -72,36 +98,40 @@ const styles = {
     marginTop: '32px',
   },
   resultCard: {
-    backgroundColor: '#1a1a1a',
-    border: '1px solid #333',
+    backgroundColor: C.bgAlt,
+    border: `1px solid ${C.border}`,
     borderRadius: '6px',
     padding: '16px',
   },
   resultLabel: {
-    fontSize: '11px',
-    color: '#888',
+    fontSize: '12px',
+    color: C.gold,
     textTransform: 'uppercase',
     letterSpacing: '1px',
+    fontFamily: font.display,
   },
   resultValue: {
     fontSize: '22px',
     fontWeight: 700,
-    color: '#fff',
+    color: C.ivory,
     marginTop: '4px',
+    fontFamily: font.mono,
   },
   resultSubtext: {
     fontSize: '11px',
-    color: '#555',
+    color: C.taupe,
     marginTop: '4px',
+    fontFamily: font.display,
   },
   error: {
-    color: '#ef4444',
+    color: C.crimson,
     fontSize: '13px',
     marginTop: '8px',
+    fontFamily: font.display,
   },
   ivBar: {
     height: '6px',
-    backgroundColor: '#333',
+    backgroundColor: C.surface,
     borderRadius: '3px',
     marginTop: '10px',
     overflow: 'hidden',
@@ -109,7 +139,7 @@ const styles = {
   ivBarFill: (pct) => ({
     height: '100%',
     width: `${Math.min(Math.max(pct * 100, 0), 100)}%`,
-    backgroundColor: pct > 0.7 ? '#ef4444' : pct > 0.4 ? '#f59e0b' : '#22c55e',
+    backgroundColor: pct > 0.7 ? C.crimson : pct > 0.4 ? C.gold : C.taupe,
     borderRadius: '3px',
     transition: 'width 0.4s ease',
   }),
@@ -146,7 +176,6 @@ function ResultCard({ label, value, subtext, rank }) {
   );
 }
 
-// --- Manual IV Solver ---
 function ManualSolver() {
   const [inputs, setInputs] = useState({
     S: 100, K: 100, T: 1, r: 0.05, div: 0, market_price: 10, option_type: 'call',
@@ -199,94 +228,11 @@ function ManualSolver() {
   );
 }
 
-// --- IV Analysis (ticker-based) ---
-function IVAnalysis() {
-  const [ticker, setTicker] = useState('SPY');
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
-
-  const analyse = async () => {
-    setError(null);
-    setResult(null);
-    try {
-      const res = await fetch(`${BASE_URL}/iv_analysis?ticker=${encodeURIComponent(ticker)}`);
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error);
-      } else {
-        setResult(data);
-      }
-    } catch {
-      setError('Failed to reach backend.');
-    }
-  };
-
-  return (
-    <div style={styles.section}>
-      <div style={styles.sectionTitle}>IV Analysis</div>
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', marginBottom: '8px' }}>
-        <div style={styles.fieldGroup}>
-          <span style={styles.label}>Ticker</span>
-          <input
-            style={styles.input}
-            value={ticker}
-            onChange={(e) => setTicker(e.target.value)}
-          />
-        </div>
-        <button style={styles.button} onClick={analyse}>Analyse</button>
-      </div>
-      {error && <div style={styles.error}>{error}</div>}
-      {result && (
-        <div style={styles.resultsGrid}>
-          <ResultCard
-            label="ATM IV — Call"
-            value={result.atm_iv_call}
-            subtext={`${(result.atm_iv_call * 100).toFixed(2)}%`}
-          />
-          <ResultCard
-            label="ATM IV — Put"
-            value={result.atm_iv_put}
-            subtext={`${(result.atm_iv_put * 100).toFixed(2)}%`}
-          />
-          <ResultCard
-            label="IV–HV Spread"
-            value={result.iv_hv_spread}
-            subtext="ATM call IV minus 20-day HV"
-          />
-          <ResultCard
-            label="20-Day HV"
-            value={result.hv_20}
-            subtext={`${(result.hv_20 * 100).toFixed(2)}%`}
-          />
-          <ResultCard
-            label="60-Day HV"
-            value={result.hv_60}
-            subtext={`${(result.hv_60 * 100).toFixed(2)}%`}
-          />
-          <ResultCard
-            label="Call IV Rank"
-            value={result.call_iv_rank}
-            subtext={`${(result.call_iv_rank * 100).toFixed(1)}th percentile`}
-            rank={result.call_iv_rank}
-          />
-          <ResultCard
-            label="Put IV Rank"
-            value={result.put_iv_rank}
-            subtext={`${(result.put_iv_rank * 100).toFixed(1)}th percentile`}
-            rank={result.put_iv_rank}
-          />
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function IVSolver() {
   return (
     <div style={styles.page}>
       <div style={styles.title}>IV Solver</div>
       <ManualSolver />
-      <IVAnalysis />
     </div>
   );
 }

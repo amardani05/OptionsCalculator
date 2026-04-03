@@ -1,154 +1,81 @@
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
+import Dashboard from './pages/Dashboard';
+import Pricer from './pages/Pricer';
+import IVSolver from './pages/IVSolver';
+import Chain from './pages/Chain';
+import Surface from './pages/Surface';
+import Summary from './pages/Summary';
+import Analysis from './pages/Analysis';
+import Exotics from './pages/Exotics';
 
-function App() {
-  const [inputs, setInputs] = useState({
-    S: 100, K: 100, T: 1, r: 0.05, sigma: 0.2, option_type: 'call', div: 0
-  });
-  const [result, setResult] = useState(null);
+const navStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0',
+  backgroundColor: '#F0E6C8',
+  borderBottom: '1px solid #C9AD6E',
+  padding: '0 40px',
+};
 
-  const handleChange = (e) => {
-    setInputs({ ...inputs, [e.target.name]: e.target.value });
-  };
+const brandStyle = {
+  fontFamily: "'EB Garamond', Garamond, serif",
+  fontSize: '18px',
+  fontWeight: 600,
+  color: '#2D0A0B',
+  letterSpacing: '1px',
+  padding: '12px 24px 12px 0',
+  marginRight: '24px',
+  borderRight: '1px solid #C9AD6E',
+};
 
-  const calculate = async () => {
-    const params = new URLSearchParams(inputs).toString();
-    const response = await fetch(`http://localhost:8000/price?${params}`);
-    const data = await response.json();
-    setResult(data);
-  };
+const linkStyle = {
+  padding: '14px 20px',
+  color: '#7A6A50',
+  textDecoration: 'none',
+  fontSize: '14px',
+  fontFamily: "'EB Garamond', Garamond, serif",
+  letterSpacing: '0.5px',
+  borderBottom: '2px solid transparent',
+};
 
-  // Style objects — keeps styling in one place
-  const styles = {
-    page: {
-      minHeight: '100vh',
-      backgroundColor: '#0a0a0a',
-      color: '#e0e0e0',
-      fontFamily: "'IBM Plex Mono', monospace",
-      padding: '40px',
-    },
-    title: {
-      fontSize: '28px',
-      fontWeight: 700,
-      color: '#ffffff',
-      marginBottom: '32px',
-      borderBottom: '1px solid #333',
-      paddingBottom: '16px',
-    },
-    grid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(4, 1fr)',
-      gap: '16px',
-      marginBottom: '24px',
-    },
-    fieldGroup: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '4px',
-    },
-    label: {
-      fontSize: '11px',
-      textTransform: 'uppercase',
-      color: '#888',
-      letterSpacing: '1px',
-    },
-    input: {
-      backgroundColor: '#1a1a1a',
-      border: '1px solid #333',
-      borderRadius: '4px',
-      color: '#fff',
-      padding: '10px 12px',
-      fontSize: '15px',
-      outline: 'none',
-    },
-    button: {
-      backgroundColor: '#2563eb',
-      color: '#fff',
-      border: 'none',
-      borderRadius: '4px',
-      padding: '12px 32px',
-      fontSize: '14px',
-      fontWeight: 600,
-      cursor: 'pointer',
-      letterSpacing: '0.5px',
-    },
-    resultsGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '12px',
-      marginTop: '32px',
-    },
-    resultCard: {
-      backgroundColor: '#1a1a1a',
-      border: '1px solid #333',
-      borderRadius: '6px',
-      padding: '16px',
-    },
-    resultLabel: {
-      fontSize: '11px',
-      color: '#888',
-      textTransform: 'uppercase',
-      letterSpacing: '1px',
-    },
-    resultValue: {
-      fontSize: '22px',
-      fontWeight: 700,
-      color: '#fff',
-      marginTop: '4px',
-    },
-  };
+const activeLinkStyle = {
+  ...linkStyle,
+  color: '#2D0A0B',
+  borderBottom: '2px solid #B22234',
+};
 
-  // Helper to render one input field
-  const field = (label, name) => (
-    <div style={styles.fieldGroup}>
-      <span style={styles.label}>{label}</span>
-      <input
-        style={styles.input}
-        name={name}
-        value={inputs[name]}
-        onChange={handleChange}
-      />
-    </div>
-  );
-
-  // Helper to render one result card
-  const card = (label, value) => (
-    <div style={styles.resultCard}>
-      <div style={styles.resultLabel}>{label}</div>
-      <div style={styles.resultValue}>{value?.toFixed(4)}</div>
-    </div>
-  );
+function Nav() {
+  const getStyle = ({ isActive }) => (isActive ? activeLinkStyle : linkStyle);
 
   return (
-    <div style={styles.page}>
-      {/* YOU: add this font import to public/index.html in the <head>: 
-          <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet"> 
-      */}
-      <div style={styles.title}>Options Pricer</div>
-
-      <div style={styles.grid}>
-        {field('Spot Price', 'S')}
-        {field('Strike', 'K')}
-        {field('Time to Expiry', 'T')}
-        {field('Risk-Free Rate', 'r')}
-        {field('Volatility', 'sigma')}
-        {field('Dividend Yield', 'div')}
-        {field('Option Type', 'option_type')}
-      </div>
-
-      <button style={styles.button} onClick={calculate}>Calculate</button>
-
-      {result && (
-        <div style={styles.resultsGrid}>
-          {card('Price', result.price)}
-          {card('Delta', result.delta)}
-          {card('Gamma', result.gamma)}
-          {card('Vega', result.vega)}
-          {card('Theta', result.theta)}
-          {card('Rho', result.rho)}
-        </div>
-      )}
-    </div>
+    <nav style={navStyle}>
+      <div style={brandStyle}>DGH</div>
+      <NavLink to="/" style={getStyle} end>Dashboard</NavLink>
+      <NavLink to="/pricer" style={getStyle}>Pricer</NavLink>
+      <NavLink to="/iv" style={getStyle}>IV Solver</NavLink>
+      <NavLink to="/chain" style={getStyle}>IV Chain</NavLink>
+      <NavLink to="/surface" style={getStyle}>Surface</NavLink>
+      <NavLink to="/summary" style={getStyle}>IV Analysis</NavLink>
+      <NavLink to="/analysis" style={getStyle}>Skew & Term</NavLink>
+      <NavLink to="/exotics" style={linkStyle}>Exotics</NavLink>
+    </nav>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Nav />
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/pricer" element={<Pricer />} />
+        <Route path="/iv" element={<IVSolver />} />
+        <Route path="/chain" element={<Chain />} />
+        <Route path="/surface" element={<Surface />} />
+        <Route path="/summary" element={<Summary />} />
+        <Route path="/analysis" element={<Analysis />} />
+        <Route path="/exotics" element={<Exotics />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}

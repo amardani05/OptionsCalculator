@@ -33,15 +33,25 @@ def market_iv(ticker):
                 if iv is None:
                     continue
                 
+                model = BSM(spot, row.strike, T, 0.04073, iv, option_type, q_continuous)
+                theo_price = model.price()
+                intrinsic = max(spot - row.strike, 0) if option_type == 'call' else max(row.strike - spot, 0)
+                extrinsic = max(market_price - intrinsic, 0)
+
                 results.append({
                     'expiration': expirations[i],
                     'strike': row.strike,
                     'type': option_type,
                     'T': T,
                     'mid': market_price,
-                    'iv': iv
+                    'iv': iv,
+                    'delta': model.delta(),
+                    'gamma': model.gamma(),
+                    'theta': model.theta() / 365.25,
+                    'intrinsic': intrinsic,
+                    'extrinsic': extrinsic,
                 })
-    return pd.DataFrame(results)
+    return pd.DataFrame(results), float(spot)
 
 
 if __name__ == "__main__":

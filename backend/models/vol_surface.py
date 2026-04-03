@@ -8,9 +8,7 @@ from datetime import datetime, timedelta # type: ignore
 
 def build_surface(ticker):
     tick = yf.Ticker(ticker)
-    spot = tick.history(period="1d")['Close'].iloc[-1]
-    
-    df = market_iv(ticker)
+    df, spot = market_iv(ticker)
     calls = df[df['type'] == 'call'].copy()
     calls = calls[calls['T'] <= 0.5]
     calls['moneyness'] = calls['strike'] / spot
@@ -25,7 +23,7 @@ def build_surface(ticker):
         points=(calls['T'].values, calls['moneyness'].values),
         values=calls['iv'].values,
         xi=(X, Y),
-        method='cubic'
+        method='linear'
     )
     
     return X, Y, Z, calls

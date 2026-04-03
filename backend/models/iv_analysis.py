@@ -5,7 +5,7 @@ import math
 
 def historical_iv(ticker):
     tick = yf.Ticker(ticker)
-    spot = tick.history(period="1y")['Close']
+    spot = tick.history(period="3y")['Close']
 
     log_returns = np.log(spot/spot.shift(1))
 
@@ -14,10 +14,9 @@ def historical_iv(ticker):
     hv_52wk_high = hv_20.max()
     hv_52wk_low = hv_20.min()
 
-    current_iv = market_iv(ticker)
     expirations = tick.options
 
-    current_spot = spot.iloc[-1]
+    current_iv, current_spot = market_iv(ticker)
 
     near_term = current_iv[current_iv['T'] >= 30/365]
     if near_term.empty:
@@ -31,6 +30,9 @@ def historical_iv(ticker):
     
     call_data = exp_data[exp_data['type'] == 'call']
     put_data = exp_data[exp_data['type'] == 'put']
+
+    if call_data.empty or put_data.empty:
+        return None
 
     atm_call_strike = call_data.loc[(call_data['strike'] - current_spot).abs().idxmin(), 'strike']
     atm_put_strike = put_data.loc[(put_data['strike'] - current_spot).abs().idxmin(), 'strike']

@@ -2,31 +2,54 @@ import { useState } from 'react';
 
 const BASE_URL = 'http://localhost:8000';
 
+const C = {
+  bg:       '#2D0A0B',
+  bgAlt:    '#3D1518',
+  surface:  '#4D1F22',
+  crimson:  '#B22234',
+  ivory:    '#F0E6C8',
+  gold:     '#C9AD6E',
+  taupe:    '#9A8564',
+  text:     '#F0E6C8',
+  muted:    '#7A6A50',
+  border:   '#4D1F22',
+  inputBg:  '#1E0607',
+  error:    '#B22234',
+};
+
+const font = {
+  display: "'EB Garamond', Garamond, serif",
+  mono: "'IBM Plex Mono', monospace",
+};
+
 const styles = {
   page: {
     minHeight: '100vh',
-    backgroundColor: '#0a0a0a',
-    color: '#e0e0e0',
-    fontFamily: "'IBM Plex Mono', monospace",
+    backgroundColor: C.bg,
+    color: C.text,
+    fontFamily: font.display,
     padding: '40px',
   },
   title: {
-    fontSize: '28px',
-    fontWeight: 700,
-    color: '#ffffff',
+    fontSize: '32px',
+    fontWeight: 600,
+    color: C.ivory,
     marginBottom: '32px',
-    borderBottom: '1px solid #333',
+    borderBottom: `1px solid ${C.border}`,
     paddingBottom: '16px',
+    fontFamily: font.display,
   },
   section: {
     marginBottom: '40px',
   },
   sectionTitle: {
-    fontSize: '13px',
+    fontSize: '14px',
     textTransform: 'uppercase',
-    color: '#555',
+    color: C.gold,
     letterSpacing: '2px',
     marginBottom: '16px',
+    fontFamily: font.display,
+    fontWeight: 600,
   },
   grid: {
     display: 'grid',
@@ -40,30 +63,33 @@ const styles = {
     gap: '4px',
   },
   label: {
-    fontSize: '11px',
+    fontSize: '12px',
     textTransform: 'uppercase',
-    color: '#888',
+    color: C.taupe,
     letterSpacing: '1px',
+    fontFamily: font.display,
   },
   input: {
-    backgroundColor: '#1a1a1a',
-    border: '1px solid #333',
+    backgroundColor: C.inputBg,
+    border: `1px solid ${C.border}`,
     borderRadius: '4px',
-    color: '#fff',
+    color: C.ivory,
     padding: '10px 12px',
     fontSize: '15px',
+    fontFamily: font.mono,
     outline: 'none',
   },
   button: {
-    backgroundColor: '#2563eb',
-    color: '#fff',
+    backgroundColor: C.crimson,
+    color: C.ivory,
     border: 'none',
     borderRadius: '4px',
     padding: '12px 32px',
-    fontSize: '14px',
+    fontSize: '15px',
     fontWeight: 600,
     cursor: 'pointer',
     letterSpacing: '0.5px',
+    fontFamily: font.display,
   },
   resultsGrid: {
     display: 'grid',
@@ -72,27 +98,30 @@ const styles = {
     marginTop: '32px',
   },
   resultCard: {
-    backgroundColor: '#1a1a1a',
-    border: '1px solid #333',
+    backgroundColor: C.bgAlt,
+    border: `1px solid ${C.border}`,
     borderRadius: '6px',
     padding: '16px',
   },
   resultLabel: {
-    fontSize: '11px',
-    color: '#888',
+    fontSize: '12px',
+    color: C.gold,
     textTransform: 'uppercase',
     letterSpacing: '1px',
+    fontFamily: font.display,
   },
   resultValue: {
     fontSize: '22px',
     fontWeight: 700,
-    color: '#fff',
+    color: C.ivory,
     marginTop: '4px',
+    fontFamily: font.mono,
   },
   error: {
-    color: '#ef4444',
+    color: C.crimson,
     fontSize: '13px',
     marginTop: '8px',
+    fontFamily: font.display,
   },
   table: {
     width: '100%',
@@ -103,16 +132,20 @@ const styles = {
   th: {
     textAlign: 'left',
     padding: '8px 12px',
-    borderBottom: '1px solid #333',
-    color: '#888',
+    borderBottom: `1px solid ${C.border}`,
+    color: C.gold,
     textTransform: 'uppercase',
     fontSize: '11px',
     letterSpacing: '1px',
+    fontFamily: font.display,
+    fontWeight: 600,
   },
   td: {
     padding: '8px 12px',
-    borderBottom: '1px solid #1e1e1e',
-    color: '#e0e0e0',
+    borderBottom: `1px solid ${C.bgAlt}`,
+    color: C.ivory,
+    fontFamily: font.mono,
+    fontSize: '13px',
   },
 };
 
@@ -141,7 +174,6 @@ function ResultCard({ label, value }) {
   );
 }
 
-// --- /price section ---
 function PriceSection() {
   const [inputs, setInputs] = useState({
     S: 100, K: 100, T: 1, r: 0.05, sigma: 0.2, option_type: 'call', div: 0,
@@ -193,7 +225,6 @@ function PriceSection() {
   );
 }
 
-// --- /iv section ---
 function IVSection() {
   const [inputs, setInputs] = useState({
     S: 100, K: 100, T: 1, r: 0.05, div: 0, market_price: 10, option_type: 'call',
@@ -245,80 +276,12 @@ function IVSection() {
   );
 }
 
-// --- /chain section ---
-function ChainSection() {
-  const [ticker, setTicker] = useState('SPY');
-  const [chain, setChain] = useState(null);
-  const [error, setError] = useState(null);
-
-  const fetchChain = async () => {
-    setError(null);
-    setChain(null);
-    try {
-      const res = await fetch(`${BASE_URL}/chain?ticker=${encodeURIComponent(ticker)}`);
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error);
-      } else {
-        setChain(data);
-      }
-    } catch {
-      setError('Failed to reach backend.');
-    }
-  };
-
-  const columns = chain && chain.length > 0 ? Object.keys(chain[0]) : [];
-
-  return (
-    <div style={styles.section}>
-      <div style={styles.sectionTitle}>Option Chain</div>
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', marginBottom: '16px' }}>
-        <div style={styles.fieldGroup}>
-          <span style={styles.label}>Ticker</span>
-          <input
-            style={styles.input}
-            value={ticker}
-            onChange={(e) => setTicker(e.target.value)}
-          />
-        </div>
-        <button style={styles.button} onClick={fetchChain}>Load Chain</button>
-      </div>
-      {error && <div style={styles.error}>{error}</div>}
-      {chain && (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                {columns.map((col) => (
-                  <th key={col} style={styles.th}>{col}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {chain.map((row, i) => (
-                <tr key={i}>
-                  {columns.map((col) => (
-                    <td key={col} style={styles.td}>
-                      {typeof row[col] === 'number' ? row[col].toFixed(4) : String(row[col])}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function Pricer() {
   return (
     <div style={styles.page}>
       <div style={styles.title}>Options Calculator</div>
       <PriceSection />
       <IVSection />
-      <ChainSection />
     </div>
   );
 }
