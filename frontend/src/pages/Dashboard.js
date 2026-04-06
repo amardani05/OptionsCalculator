@@ -24,7 +24,7 @@ const font = {
 const styles = {
   page: {
     minHeight: '100vh',
-    backgroundColor: C.bg,
+    backgroundColor: '#000000',
     color: C.text,
     fontFamily: font.display,
     padding: '40px',
@@ -37,6 +37,13 @@ const styles = {
     borderBottom: `1px solid ${C.border}`,
     paddingBottom: '16px',
     fontFamily: font.display,
+  },
+  card: {
+    backgroundColor: C.bg,
+    borderRadius: '8px',
+    border: `1px solid ${C.border}`,
+    padding: '28px',
+    marginBottom: '24px',
   },
   sectionTitle: {
     fontSize: '14px',
@@ -205,8 +212,8 @@ export default function Dashboard() {
 
       {/* IV Analysis Section */}
       {ivData && (
-        <>
-          <div style={{ ...styles.sectionTitle, marginTop: '32px' }}>Vol Regime</div>
+        <div style={styles.card}>
+          <div style={styles.sectionTitle}>Vol Regime</div>
           <div style={{ display: 'flex', gap: '32px', marginBottom: '24px' }}>
             <div>
               <span style={{ color: C.taupe, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px' }}>HV20</span>
@@ -274,13 +281,13 @@ export default function Dashboard() {
             useResizeHandler
             style={{ width: '100%' }}
           />
-        </>
+        </div>
       )}
 
       {/* Surface Section */}
       {surfaceData && (
-        <>
-          <div style={{ ...styles.sectionTitle, marginTop: '48px' }}>Volatility Surface</div>
+        <div style={styles.card}>
+          <div style={styles.sectionTitle}>Volatility Surface</div>
           <Plot
             data={[
               {
@@ -338,92 +345,95 @@ export default function Dashboard() {
             useResizeHandler
             style={{ width: '100%' }}
           />
-        </>
+        </div>
       )}
 
-      {/* Skew Section */}
-      {skewData && (
-        <>
-          <div style={{ ...styles.sectionTitle, marginTop: '48px' }}>
-            Volatility Skew — {selectedExp}
-          </div>
-          <Plot
-            data={[
-              {
-                x: skewData.calls.strikes,
-                y: skewData.calls.iv,
-                type: 'scatter',
-                mode: 'lines+markers',
-                name: 'Calls',
-                line: { color: C.crimson, width: 2 },
-                marker: { size: 4 },
-              },
-              {
-                x: skewData.puts.strikes,
-                y: skewData.puts.iv,
-                type: 'scatter',
-                mode: 'lines+markers',
-                name: 'Puts',
-                line: { color: C.gold, width: 2 },
-                marker: { size: 4 },
-              },
-              {
-                x: [skewData.spot, skewData.spot],
-                y: [0, Math.max(...skewData.calls.iv, ...skewData.puts.iv) * 1.05],
-                type: 'scatter',
-                mode: 'lines',
-                name: 'Spot',
-                line: { color: C.ivory, width: 1, dash: 'dash' },
-              },
-            ]}
-            layout={{
-              paper_bgcolor: C.bg,
-              plot_bgcolor: C.bg,
-              font: { color: C.ivory, family: font.mono },
-              xaxis: { title: { text: 'Strike', font: { color: C.taupe } }, color: C.taupe, gridcolor: C.border },
-              yaxis: { title: { text: 'Implied Volatility', font: { color: C.taupe } }, color: C.taupe, gridcolor: C.border, tickformat: '.0%' },
-              legend: { font: { color: C.ivory } },
-              margin: { l: 60, r: 20, t: 20, b: 50 },
-              autosize: true,
-              height: 450,
-            }}
-            useResizeHandler
-            style={{ width: '100%' }}
-          />
-        </>
-      )}
+      {/* Skew & Term Side by Side */}
+      {(skewData || termData) && (
+        <div style={{ display: 'flex', gap: '24px' }}>
+          {skewData && (
+            <div style={{ ...styles.card, flex: 1 }}>
+              <div style={styles.sectionTitle}>
+                Volatility Skew — {selectedExp}
+              </div>
+              <Plot
+                data={[
+                  {
+                    x: skewData.calls.strikes,
+                    y: skewData.calls.iv,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Calls',
+                    line: { color: C.crimson, width: 2 },
+                    marker: { size: 4 },
+                  },
+                  {
+                    x: skewData.puts.strikes,
+                    y: skewData.puts.iv,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Puts',
+                    line: { color: C.gold, width: 2 },
+                    marker: { size: 4 },
+                  },
+                  {
+                    x: [skewData.spot, skewData.spot],
+                    y: [0, Math.max(...skewData.calls.iv, ...skewData.puts.iv) * 1.05],
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Spot',
+                    line: { color: C.ivory, width: 1, dash: 'dash' },
+                  },
+                ]}
+                layout={{
+                  paper_bgcolor: C.bg,
+                  plot_bgcolor: C.bg,
+                  font: { color: C.ivory, family: font.mono },
+                  xaxis: { title: { text: 'Strike', font: { color: C.taupe } }, color: C.taupe, gridcolor: C.border },
+                  yaxis: { title: { text: 'Implied Volatility', font: { color: C.taupe } }, color: C.taupe, gridcolor: C.border, tickformat: '.0%' },
+                  legend: { font: { color: C.ivory } },
+                  margin: { l: 60, r: 20, t: 20, b: 50 },
+                  autosize: true,
+                  height: 400,
+                }}
+                useResizeHandler
+                style={{ width: '100%' }}
+              />
+            </div>
+          )}
 
-      {/* Term Structure Section */}
-      {termData && (
-        <>
-          <div style={{ ...styles.sectionTitle, marginTop: '48px' }}>ATM Term Structure</div>
-          <Plot
-            data={[
-              {
-                x: termData.term_structure.map((d) => d.expiration),
-                y: termData.term_structure.map((d) => d.atm_iv),
-                type: 'scatter',
-                mode: 'lines+markers',
-                name: 'ATM IV',
-                line: { color: C.crimson, width: 2 },
-                marker: { size: 6, color: C.gold },
-              },
-            ]}
-            layout={{
-              paper_bgcolor: C.bg,
-              plot_bgcolor: C.bg,
-              font: { color: C.ivory, family: font.mono },
-              xaxis: { title: { text: 'Expiration', font: { color: C.taupe } }, color: C.taupe, gridcolor: C.border },
-              yaxis: { title: { text: 'Implied Volatility', font: { color: C.taupe } }, color: C.taupe, gridcolor: C.border, tickformat: '.0%' },
-              legend: { font: { color: C.ivory } },
-              margin: { l: 60, r: 20, t: 20, b: 50 },
-              autosize: true,
-              height: 450,
-            }}
-            useResizeHandler
-            style={{ width: '100%' }}
-          />
-        </>
+          {termData && (
+            <div style={{ ...styles.card, flex: 1 }}>
+              <div style={styles.sectionTitle}>ATM Term Structure</div>
+              <Plot
+                data={[
+                  {
+                    x: termData.term_structure.map((d) => d.expiration),
+                    y: termData.term_structure.map((d) => d.atm_iv),
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'ATM IV',
+                    line: { color: C.crimson, width: 2 },
+                    marker: { size: 6, color: C.gold },
+                  },
+                ]}
+                layout={{
+                  paper_bgcolor: C.bg,
+                  plot_bgcolor: C.bg,
+                  font: { color: C.ivory, family: font.mono },
+                  xaxis: { title: { text: 'Expiration', font: { color: C.taupe } }, color: C.taupe, gridcolor: C.border },
+                  yaxis: { title: { text: 'Implied Volatility', font: { color: C.taupe } }, color: C.taupe, gridcolor: C.border, tickformat: '.0%' },
+                  legend: { font: { color: C.ivory } },
+                  margin: { l: 60, r: 20, t: 20, b: 50 },
+                  autosize: true,
+                  height: 400,
+                }}
+                useResizeHandler
+                style={{ width: '100%' }}
+              />
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

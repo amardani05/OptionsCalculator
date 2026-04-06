@@ -24,7 +24,7 @@ const font = {
 const styles = {
   page: {
     minHeight: '100vh',
-    backgroundColor: C.bg,
+    backgroundColor: '#000000',
     color: C.text,
     fontFamily: font.display,
     padding: '40px',
@@ -37,6 +37,13 @@ const styles = {
     borderBottom: `1px solid ${C.border}`,
     paddingBottom: '16px',
     fontFamily: font.display,
+  },
+  card: {
+    backgroundColor: C.bg,
+    borderRadius: '8px',
+    border: `1px solid ${C.border}`,
+    padding: '28px',
+    marginBottom: '24px',
   },
   sectionTitle: {
     fontSize: '14px',
@@ -214,8 +221,8 @@ export default function Analysis() {
       {error && <div style={styles.error}>{error}</div>}
 
       {skewData && (
-        <>
-          <div style={{ ...styles.sectionTitle, marginTop: '32px' }}>
+        <div style={styles.card}>
+          <div style={styles.sectionTitle}>
             Volatility Skew — {selectedExp}
           </div>
           <Plot
@@ -261,12 +268,12 @@ export default function Analysis() {
             useResizeHandler
             style={{ width: '100%' }}
           />
-        </>
+        </div>
       )}
 
       {termData && (
-        <>
-          <div style={{ ...styles.sectionTitle, marginTop: '48px' }}>ATM Term Structure</div>
+        <div style={styles.card}>
+          <div style={styles.sectionTitle}>ATM Term Structure</div>
           <Plot
             data={[
               {
@@ -293,7 +300,7 @@ export default function Analysis() {
             useResizeHandler
             style={{ width: '100%' }}
           />
-        </>
+        </div>
       )}
     </div>
   );

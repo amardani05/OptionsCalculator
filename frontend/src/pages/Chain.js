@@ -60,10 +60,17 @@ function fmtVal(v, fmt) {
 const styles = {
   page: {
     minHeight: '100vh',
-    backgroundColor: C.bg,
+    backgroundColor: '#000000',
     color: C.text,
     fontFamily: font.display,
     padding: '32px 40px',
+  },
+  card: {
+    backgroundColor: C.bg,
+    borderRadius: '8px',
+    border: `1px solid ${C.border}`,
+    padding: '28px',
+    marginBottom: '24px',
   },
   header: {
     display: 'flex',
@@ -397,65 +404,67 @@ export default function Chain() {
         </div>
       )}
 
-      {expirations.length > 0 && (
-        <div style={styles.expirationBar}>
-          {expirations.map((exp) => (
-            <button
-              key={exp}
-              style={styles.expTab(exp === selectedExp)}
-              onClick={() => setSelectedExp(exp)}
-            >
-              {exp}
-            </button>
-          ))}
-        </div>
-      )}
+      <div style={styles.card}>
+        {expirations.length > 0 && (
+          <div style={styles.expirationBar}>
+            {expirations.map((exp) => (
+              <button
+                key={exp}
+                style={styles.expTab(exp === selectedExp)}
+                onClick={() => setSelectedExp(exp)}
+              >
+                {exp}
+              </button>
+            ))}
+          </div>
+        )}
 
-      {selectedExp && daysToExp != null && (
-        <div style={styles.daysLabel}>
-          {selectedExp} ({daysToExp} days to expiry)
-        </div>
-      )}
+        {selectedExp && daysToExp != null && (
+          <div style={styles.daysLabel}>
+            {selectedExp} ({daysToExp} days to expiry)
+          </div>
+        )}
 
-      {chainRows.length > 0 && (
-        <div style={styles.tableWrap}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th colSpan={callCols.length} style={{ ...styles.thGroup, color: C.gold }}>Call</th>
-                <th style={{ ...styles.thGroup, color: C.taupe, backgroundColor: C.strikeBg }}>Strikes</th>
-                <th colSpan={putCols.length} style={{ ...styles.thGroup, color: C.crimson }}>Put</th>
-              </tr>
-              <tr>
-                {callCols.map((col) => (
-                  <th key={`c-${col.key}`} style={styles.th}>{col.label}</th>
-                ))}
-                <th style={styles.thStrike}>Strike</th>
-                {putCols.map((col) => (
-                  <th key={`p-${col.key}`} style={styles.th}>{col.label}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {chainRows.map(({ strike, call, put }) => (
-                <tr key={strike}>
+        {chainRows.length > 0 && (
+          <div style={styles.tableWrap}>
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th colSpan={callCols.length} style={{ ...styles.thGroup, color: C.gold }}>Call</th>
+                  <th style={{ ...styles.thGroup, color: C.taupe, backgroundColor: C.strikeBg }}>Strikes</th>
+                  <th colSpan={putCols.length} style={{ ...styles.thGroup, color: C.crimson }}>Put</th>
+                </tr>
+                <tr>
                   {callCols.map((col) => (
-                    <td key={`c-${col.key}`} style={{ ...styles.td, backgroundColor: callRowBg(strike) }}>
-                      {fmtVal(call?.[col.key], col.fmt)}
-                    </td>
+                    <th key={`c-${col.key}`} style={styles.th}>{col.label}</th>
                   ))}
-                  <td style={styles.tdStrike}>{strike}</td>
+                  <th style={styles.thStrike}>Strike</th>
                   {putCols.map((col) => (
-                    <td key={`p-${col.key}`} style={{ ...styles.td, backgroundColor: putRowBg(strike) }}>
-                      {fmtVal(put?.[col.key], col.fmt)}
-                    </td>
+                    <th key={`p-${col.key}`} style={styles.th}>{col.label}</th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {chainRows.map(({ strike, call, put }) => (
+                  <tr key={strike}>
+                    {callCols.map((col) => (
+                      <td key={`c-${col.key}`} style={{ ...styles.td, backgroundColor: callRowBg(strike) }}>
+                        {fmtVal(call?.[col.key], col.fmt)}
+                      </td>
+                    ))}
+                    <td style={styles.tdStrike}>{strike}</td>
+                    {putCols.map((col) => (
+                      <td key={`p-${col.key}`} style={{ ...styles.td, backgroundColor: putRowBg(strike) }}>
+                        {fmtVal(put?.[col.key], col.fmt)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

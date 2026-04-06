@@ -24,7 +24,7 @@ const font = {
 const styles = {
   page: {
     minHeight: '100vh',
-    backgroundColor: C.bg,
+    backgroundColor: '#000000',
     color: C.text,
     fontFamily: font.display,
     padding: '40px',
@@ -37,6 +37,13 @@ const styles = {
     borderBottom: `1px solid ${C.border}`,
     paddingBottom: '16px',
     fontFamily: font.display,
+  },
+  card: {
+    backgroundColor: C.bg,
+    borderRadius: '8px',
+    border: `1px solid ${C.border}`,
+    padding: '28px',
+    marginBottom: '24px',
   },
   sectionTitle: {
     fontSize: '14px',
@@ -127,8 +134,8 @@ export default function Summary() {
       </div>
       {error && <div style={styles.error}>{error}</div>}
       {ivData && (
-        <>
-          <div style={{ ...styles.sectionTitle, marginTop: '48px' }}>Vol Regime</div>
+        <div style={styles.card}>
+          <div style={styles.sectionTitle}>Vol Regime</div>
           <div style={{ display: 'flex', gap: '32px', marginBottom: '24px' }}>
             <div>
               <span style={{ color: C.taupe, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px' }}>HV20</span>
@@ -196,7 +203,7 @@ export default function Summary() {
             useResizeHandler
             style={{ width: '100%' }}
           />
-        </>
+        </div>
       )}
     </div>
   );

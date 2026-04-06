@@ -24,7 +24,7 @@ const font = {
 const styles = {
   page: {
     minHeight: '100vh',
-    backgroundColor: C.bg,
+    backgroundColor: '#000000',
     color: C.text,
     fontFamily: font.display,
     padding: '40px',
@@ -37,6 +37,13 @@ const styles = {
     borderBottom: `1px solid ${C.border}`,
     paddingBottom: '16px',
     fontFamily: font.display,
+  },
+  card: {
+    backgroundColor: C.bg,
+    borderRadius: '8px',
+    border: `1px solid ${C.border}`,
+    padding: '28px',
+    marginBottom: '24px',
   },
   sectionTitle: {
     fontSize: '14px',
@@ -127,6 +134,7 @@ export default function Surface() {
       </div>
       {error && <div style={styles.error}>{error}</div>}
       {data && (
+        <div style={styles.card}>
         <Plot
             data={[
                 {
@@ -185,6 +193,7 @@ export default function Surface() {
             useResizeHandler
             style={{ width: '100%' }}
         />
+        </div>
     )}
     </div>
   );
